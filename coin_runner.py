@@ -5,6 +5,14 @@ import sys
 # Coin Runner - a simple 2D endless runner built with Pygame
 pygame.init()
 
+pygame.mixer.init()
+crash_sound = pygame.mixer.Sound("sounds/crash.wav")
+crash_sound.set_volume(0.8)
+
+
+# head_img = pygame.image.load("images/head.png").convert_alpha()
+# head_img = pygame.transform.smoothscale(head_img, (24, 24))
+
 WIDTH, HEIGHT = 900, 500
 GROUND_Y = 400
 FPS = 60
@@ -13,6 +21,8 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Coin Runner")
 clock = pygame.time.Clock()
 
+head_img = pygame.image.load("images/head.png").convert_alpha()
+head_img = pygame.transform.smoothscale(head_img, (24, 24))
 # Colors
 SKY = (135, 206, 235)
 WHITE = (255, 255, 255)
@@ -67,12 +77,9 @@ class Player:
         self.run_frame += 1
 
     def draw(self):
-        # Head
-        pygame.draw.circle(screen, (245, 195, 150), (self.x + 19, int(self.y + 12)), 12)
-        # Hair
-        pygame.draw.arc(screen, DARK, (self.x + 7, int(self.y), 24, 20), 3.14, 6.2, 5)
-        # Body
-        pygame.draw.rect(screen, BLUE, (self.x + 7, int(self.y + 24), 25, 22), border_radius=6)
+        # Custom image on player's head
+        # Custom head image
+        screen.blit(head_img, (self.x + 7, int(self.y)))
         # Arms
         swing = 5 if (self.run_frame // 7) % 2 == 0 else -5
         pygame.draw.line(screen, (245, 195, 150), (self.x + 8, int(self.y + 29)),
@@ -225,6 +232,7 @@ while running:
             obstacle.update(speed)
             obstacle.draw()
             if player.rect.colliderect(obstacle.rect):
+                crash_sound.play()
                 game_over = True
                 best_score = max(best_score, score)
             elif obstacle.x < -60:
