@@ -48,6 +48,22 @@ def draw_text(text, font_obj, color, x, y, center=False):
         rect.topleft = (x, y)
     screen.blit(surface, rect)
 
+def draw_button(text, x, y, width, height):
+    button_rect = pygame.Rect(x, y, width, height)
+
+    mouse_pos = pygame.mouse.get_pos()
+    hover = button_rect.collidepoint(mouse_pos)
+
+    button_color = (35, 160, 90) if hover else (25, 130, 70)
+
+    pygame.draw.rect(screen, button_color, button_rect, border_radius=12)
+    pygame.draw.rect(screen, WHITE, button_rect, width=2, border_radius=12)
+
+    text_surface = font.render(text, True, WHITE)
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+    return button_rect
 class Player:
     def __init__(self):
         self.x = 120
@@ -179,6 +195,16 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1 and game_over:
+                button_rect = pygame.Rect(
+                    WIDTH // 2 - 100, 330, 200, 55
+                )
+
+                if button_rect.collidepoint(event.pos):
+                    player, coins, obstacles, score, distance, speed, game_over = reset_game()
+                    coin_timer = obstacle_timer = 0
+                    started = True
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
@@ -245,15 +271,47 @@ while running:
     else:
         for coin in coins:
             coin.draw()
+
         for obstacle in obstacles:
             obstacle.draw()
+
         player.draw()
-        draw_text("GAME OVER", big_font, RED, WIDTH // 2, 155, center=True)
-        draw_text(f"Your score: {score}", font, DARK, WIDTH // 2, 220, center=True)
-        draw_text(f"Best score this session: {best_score}", font, DARK,
-                  WIDTH // 2, 258, center=True)
-        draw_text("Press SPACE or R to play again", small_font, DARK,
-                  WIDTH // 2, 305, center=True)
+
+        # Dark overlay
+        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 130))
+        screen.blit(overlay, (0, 0))
+
+        # Game Over title
+        draw_text(
+            "GAME OVER", big_font, RED,
+            WIDTH // 2, 130, center=True
+        )
+
+        # Final score
+        draw_text(
+            f"Your Score: {score}", font, WHITE,
+            WIDTH // 2, 205, center=True
+        )
+
+        # Best score
+        draw_text(
+            f"Best Score: {best_score}", font, GOLD,
+            WIDTH // 2, 250, center=True
+        )
+
+        # Play Again button
+        draw_button(
+            "PLAY AGAIN",
+            WIDTH // 2 - 100, 330, 200, 55
+        )
+
+        # Keyboard instruction
+        draw_text(
+            "Click PLAY AGAIN or press SPACE",
+            small_font, WHITE,
+            WIDTH // 2, 415, center=True
+        )
 
     pygame.display.flip()
 
