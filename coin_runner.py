@@ -268,7 +268,7 @@ while running:
         draw_text(f"Score: {score}", font, DARK, 20, 18)
         draw_text(f"Best: {best_score}", font, DARK, 20, 52)
         draw_text("SPACE / ↑ = Jump", small_font, DARK, WIDTH - 220, 22)
-    else:
+    else:      
         for coin in coins:
             coin.draw()
 
